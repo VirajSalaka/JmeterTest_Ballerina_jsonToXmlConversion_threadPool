@@ -52,7 +52,7 @@ do
             echo "Report location is ${report_location}"
             mkdir -p $report_location
 
-            ssh $ballerina_ssh_host "./setup2.sh $tsize"
+            ssh $ballerina_ssh_host "./setup.sh $tsize"
             ssh $jmeter1_ssh_host "./jmeter/jmeter-server-start.sh $jmeter1_host"
 			
             export JVM_ARGS="-Xms2g -Xmx2g -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:$report_location/jmeter_gc.log"
