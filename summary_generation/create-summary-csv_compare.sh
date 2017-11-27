@@ -40,10 +40,7 @@ get_loadavg_headers() {
 filename="compare_summary.csv"
 if [[ ! -f $filename ]]; then
     # Create File and save headers
-    echo -n "Type", "Message Size (Bytes)","Sleep Time (ms)","Concurrent Users", > $filename
-    #echo -n "# Samples","Error Count","Error %","Average (ms)","Min (ms)","Max (ms)", >> $filename
-    #echo -n "90th Percentile (ms)","95th Percentile (ms)","99th Percentile (ms)","Throughput", >> $filename
-    #echo -n "Received (KB/sec)","Sent (KB/sec)" >> $filename
+    echo -n "Type", "ThreadPool Size","Concurrent Users", > $filename
     echo -n "sampler_label,aggregate_report_count,average,aggregate_report_median,aggregate_report_90%_line,aggregate_report_95%_line,aggregate_report_99%_line,aggregate_report_min,aggregate_report_max,aggregate_report_error%,aggregate_report_rate,aggregate_report_bandwidth,aggregate_report_stddev" >> $filename
     echo -n $(get_gc_headers "Ballerina") >> $filename
     if [ "$include_all" = true ] ; then
@@ -106,11 +103,9 @@ write_report_column() {
     echo -n ",$line2" >> $filename
 }
 
-for message_size_dir in $(find . -maxdepth 1 -name '*Threads' | sort -V)
+for threadpool_size_dir in $(find . -maxdepth 1 -name '*Threads' | sort -V)
 do
-    for sleep_time_dir in $(find $message_size_dir -maxdepth 1 -name '*ms_sleep' | sort -V)
-    do
-        for user_dir in $(find $sleep_time_dir -maxdepth 1 -name '*_users' | sort -V)
+        for user_dir in $(find $threadpool_size_dir -maxdepth 1 -name '*_users' | sort -V)
         do
             dashboard_data_file=$user_dir/dashboard-measurement/content/js/dashboard.js
             if [[ ! -f $dashboard_data_file ]]; then
@@ -119,11 +114,10 @@ do
             fi
             statisticsTableData=$(grep '#statisticsTable' $dashboard_data_file | sed  's/^.*"#statisticsTable"), \({.*}\).*$/\1/')
             echo "Getting data from $dashboard_data_file"
-            message_size=$(echo $message_size_dir | sed -r 's/.\/([0-9]+)Threads.*/\1/')
-            sleep_time=$(echo $sleep_time_dir | sed -r 's/.*\/([0-9]+)ms_sleep.*/\1/')
+            threadpool_size=$(echo $message_size_dir | sed -r 's/.\/([0-9]+)Threads.*/\1/')
             concurrent_users=$(echo $user_dir | sed -r 's/.*\/([0-9]+)_users.*/\1/')
             echo -n "Dashboard," >> $filename
-            echo -n "$message_size,$sleep_time,$concurrent_users" >> $filename
+            echo -n "$threadpool_size,$concurrent_users" >> $filename
             write_column "none"
             write_column "$statisticsTableData" 1
             write_column "$statisticsTableData" 4
@@ -151,7 +145,7 @@ do
             echo -ne "\r\n" >> $filename
             
             echo -n "Aggregate," >> $filename
-            echo -n "$message_size,$sleep_time,$concurrent_users" >> $filename
+            echo -n "$threadpool_size,$concurrent_users" >> $filename
             unzip $user_dir/jtls.zip
             java -jar /home/viraj/apache-jmeter-3.3/lib/cmdrunner-2.0.jar --tool Reporter --plugin-type AggregateReport --input-jtl results-measurement.jtl --generate-csv current_result.csv
             write_report_column "current_result.csv"
@@ -162,7 +156,6 @@ do
             echo -n "-" >> $filename
             echo -ne "\r\n" >> $filename
         done
-    done
 done
 
 echo "Completed. Open $filename."

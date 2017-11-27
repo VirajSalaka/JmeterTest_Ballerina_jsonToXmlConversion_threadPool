@@ -105,9 +105,9 @@ do
             fi
             statisticsTableData=$(grep '#statisticsTable' $dashboard_data_file | sed  's/^.*"#statisticsTable"), \({.*}\).*$/\1/')
             echo "Getting data from $dashboard_data_file"
-            message_size=$(echo $threadpool_size_dir | sed -r 's/.\/([0-9]+)Threads.*/\1/')
+            threadpool_size=$(echo $threadpool_size_dir | sed -r 's/.\/([0-9]+)Threads.*/\1/')
             concurrent_users=$(echo $user_dir | sed -r 's/.*\/([0-9]+)_users.*/\1/')
-            echo -n "$message_size,$concurrent_users" >> $filename
+            echo -n "$threadpool_size,$concurrent_users" >> $filename
             write_column "$statisticsTableData" 1
             write_column "$statisticsTableData" 2
             write_column "$statisticsTableData" 3
