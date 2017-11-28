@@ -68,9 +68,9 @@ do
 
             $HOME/jtl-splitter/jtl-splitter.sh ${report_location}/results.jtl $warmup_time
             echo "Generating Dashboard for Warmup Period"
-            jmeter -g ${report_location}/results-warmup.jtl -o $report_location/dashboard-warmup
+            jmeter -J jmeter.reportgenerator.statistic_window=10000000 -g ${report_location}/results-warmup.jtl -o $report_location/dashboard-warmup
             echo "Generating Dashboard for Measurement Period"
-            jmeter -g ${report_location}/results-measurement.jtl -o $report_location/dashboard-measurement
+            jmeter -J jmeter.reportgenerator.statistic_window=10000000 -g ${report_location}/results-measurement.jtl -o $report_location/dashboard-measurement
 
             echo "Zipping JTL files in ${report_location}"
             zip -jm ${report_location}/jtls.zip ${report_location}/results*.jtl
