@@ -56,7 +56,7 @@ echo "Enabling GC Logs"
 export JAVA_OPTS="-XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -DexecutorPoolSize=${pool_size} -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:$BALLERINA_HOME/logs/gc.log"
 
 echo "Starting Ballerina"
-nohup ballerina run jsonToXmlConversion_large.bal > bal.out 2>&1 &
+nohup ballerina run jsonToXmlConversion.bal > bal.out 2>&1 &
 
 echo "Waiting for Ballerina to start"
 sleep 10
