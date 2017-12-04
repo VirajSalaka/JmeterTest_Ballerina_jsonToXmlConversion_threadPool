@@ -17,9 +17,9 @@ ballerina_host=10.10.10.12
 ballerina_path=/jsonToXmlConversion
 ballerina_ssh_host=ballerina_host
 # test duration in seconds
-test_duration=900
+test_duration=180
 # warmuptime in minutes
-warmup_time=5
+warmup_time=1
 jmeter1_host=10.10.10.10
 jmeter1_ssh_host=jmeter1
 
@@ -53,7 +53,7 @@ do
             mkdir -p $report_location
 
             ssh $ballerina_ssh_host "./setup.sh $tsize"
-            ssh $jmeter1_ssh_host "./jmeter/jmeter-server-start.sh $jmeter1_host"
+            sh $HOME/jmeter/jmeter-server-start.sh ${jmeter1_host}
 			
             export JVM_ARGS="-Xms2g -Xmx2g -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:$report_location/jmeter_gc.log"
             echo "# Running JMeter. Concurrent Users: $u Duration: $test_duration JVM Args: $JVM_ARGS"
@@ -68,9 +68,9 @@ do
 
             $HOME/jtl-splitter/jtl-splitter.sh ${report_location}/results.jtl $warmup_time
             echo "Generating Dashboard for Warmup Period"
-            jmeter -J jmeter.reportgenerator.statistic_window=-1 -g ${report_location}/results-warmup.jtl -o $report_location/dashboard-warmup
+            jmeter -J jmeter.reportgenerator.statistic_window=10000000 -g ${report_location}/results-warmup.jtl -o $report_location/dashboard-warmup
             echo "Generating Dashboard for Measurement Period"
-            jmeter -J jmeter.reportgenerator.statistic_window=-1 -g ${report_location}/results-measurement.jtl -o $report_location/dashboard-measurement
+            jmeter -J jmeter.reportgenerator.statistic_window=10000000 -g ${report_location}/results-measurement.jtl -o $report_location/dashboard-measurement
 
             echo "Zipping JTL files in ${report_location}"
             zip -jm ${report_location}/jtls.zip ${report_location}/results*.jtl
@@ -78,8 +78,8 @@ do
             touch ${report_location}/bre.log
             touch ${report_location}/ballerina_host_gc.log
             scp $jmeter1_ssh_host:jmetergc.log ${report_location}/jmeter1_gc.log
-            scp $ballerina_ssh_host:/ballerina-tools-0.95.1-SNAPSHOT/logs/bre.log ${report_location}/bre.log
-            scp $ballerina_ssh_host:/ballerina-tools-0.95.1-SNAPSHOT/logs/gc.log ${report_location}/ballerina_host_gc.log
+            scp $ballerina_ssh_host:ballerina-tools-0.95.1-SNAPSHOT/logs/bre.log ${report_location}/bre.log
+            scp $ballerina_ssh_host:ballerina-tools-0.95.1-SNAPSHOT/logs/gc.log ${report_location}/ballerina_host_gc.log
         done
 done
 
